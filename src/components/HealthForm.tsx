@@ -204,6 +204,7 @@ export function HealthForm({ onSubmit, isLoading }: Props) {
         value={form.medicalConditions}
         onChange={(e) => set('medicalConditions', e.target.value)}
         disabled={isLoading}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
 
       {/* Goals */}
@@ -215,6 +216,7 @@ export function HealthForm({ onSubmit, isLoading }: Props) {
         value={form.goals}
         onChange={(e) => set('goals', e.target.value)}
         disabled={isLoading}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
 
       <Button
