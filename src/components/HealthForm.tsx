@@ -16,7 +16,7 @@ const defaultForm: HealthFormData = {
   heightFt: '',
   heightIn: '',
   weightLbs: '',
-  activityLevel: 'moderately_active',
+  activityLevel: '',
   medicalConditions: '',
   goals: '',
 };
@@ -202,7 +202,9 @@ export function HealthForm({ onSubmit, isLoading }: Props) {
           value={form.activityLevel}
           onChange={(e) => set('activityLevel', e.target.value as HealthFormData['activityLevel'])}
           disabled={isLoading}
+          required
         >
+          <option value="">-- Select one --</option>
           <option value="sedentary">Sedentary — little or no exercise</option>
           <option value="lightly_active">Lightly active — 1–3 days/week</option>
           <option value="moderately_active">Moderately active — 3–5 days/week</option>

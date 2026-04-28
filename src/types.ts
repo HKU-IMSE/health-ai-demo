@@ -12,7 +12,7 @@ export interface HealthFormData {
   heightFt: string;
   heightIn: string;
   weightLbs: string;
-  activityLevel: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extra_active';
+  activityLevel: '' | 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extra_active';
   medicalConditions: string;
   goals: string;
 }

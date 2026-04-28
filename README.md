@@ -1,73 +1,72 @@
-# React + TypeScript + Vite
+# Health AI Demo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + Vite + TailwindCSS app that takes user health data, sends it to an AI model via [OpenRouter](https://openrouter.ai), and streams back a structured health analysis report.
 
-Currently, two official plugins are available:
+**Live demo:** https://dist-jet-psi-81.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+- **React 19** + **TypeScript** + **Vite**
+- **TailwindCSS v4** for styling
+- **Vercel AI SDK** (`ai`) + `@openrouter/ai-sdk-provider` for streaming AI responses
+- **Model**: `openai/gpt-4o-mini` via OpenRouter
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+### 1. Install dependencies
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Set your OpenRouter API key
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Copy `.env.example` to `.env.local` and fill in your key:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cp .env.example .env.local
+```
+
+```env
+VITE_OPENROUTER_API_KEY=sk-or-...
+```
+
+Get a free API key at [openrouter.ai/keys](https://openrouter.ai/keys).
+
+> **Note:** This is a client-side-only app — the API key is baked into the JS bundle at build time and visible in the browser. Set a spending limit on your OpenRouter account to prevent unexpected charges.
+
+### 3. Run locally
+
+```bash
+npm run dev
+```
+
+## Deploying to Vercel
+
+The app is deployed as a **static site** by uploading the local `dist` folder directly to Vercel. Vercel never runs a build or pulls from GitHub — the API key is baked in locally before uploading.
+
+### First-time setup
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Log in (opens browser)
+vercel login
+```
+
+### Deploy
+
+```bash
+npm run build && vercel deploy dist --prod
+```
+
+That's it. The `dist` folder is uploaded as-is with the API key already embedded.
+
+### Subsequent deployments
+
+Same command — just make sure `.env.local` has the correct API key before running:
+
+```bash
+npm run build && vercel deploy dist --prod
 ```
