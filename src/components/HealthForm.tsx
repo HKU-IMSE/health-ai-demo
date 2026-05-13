@@ -33,9 +33,11 @@ const defaultForm: HealthFormData = {
 export function HealthForm({ onSubmit, isLoading }: Props) {
   const [form, setForm] = React.useState<HealthFormData>(defaultForm);
 
+  // Helper: update a single field in the form state
   const set = <K extends keyof HealthFormData>(key: K, value: HealthFormData[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  // Clears height/weight fields when the unit system changes
   const switchUnits = (system: UnitSystem) => {
     setForm((prev) => ({
       ...prev,
@@ -53,182 +55,57 @@ export function HealthForm({ onSubmit, isLoading }: Props) {
     onSubmit(form);
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      {/* Personal Info */}
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <TextField
-            label="Name (optional)"
-            placeholder="Your name"
-            value={form.name}
-            onChange={(e) => set('name', e.target.value)}
-            disabled={isLoading}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <TextField
-            label="Age"
-            required
-            type="number"
-            placeholder="e.g. 30"
-            slotProps={{ htmlInput: { min: 1, max: 120 } }}
-            value={form.age}
-            onChange={(e) => set('age', e.target.value)}
-            disabled={isLoading}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <TextField
-            select
-            label="Sex"
-            required
-            value={form.sex}
-            onChange={(e) => set('sex', e.target.value as HealthFormData['sex'])}
-            disabled={isLoading}
-          >
-            <MenuItem value="male">Male</MenuItem>
-            <MenuItem value="female">Female</MenuItem>
-            <MenuItem value="other">Other / Prefer not to say</MenuItem>
-          </TextField>
-        </Grid>
-      </Grid>
+  // ─── Part A: Build the form UI ────────────────────────────────────────────
+  //
+  // Return a <form> element with onSubmit={handleSubmit} and className="flex flex-col gap-6".
+  //
+  // Inside the form, add the following sections IN ORDER:
+  //
+  // 1. PERSONAL INFO — a <Grid container spacing={2}> with three columns:
+  //    a) Name field       — TextField, label "Name (optional)", not required
+  //    b) Age field        — TextField, type="number", required, min=1, max=120
+  //    c) Sex field        — TextField select, required
+  //                          Options: "male" / "female" / "other / Prefer not to say"
+  //
+  // 2. UNIT TOGGLE — a <ToggleButtonGroup> (exclusive) bound to form.unitSystem.
+  //    Call switchUnits(val) on change.
+  //    Two buttons: value="metric" and value="imperial"
+  //
+  // 3. HEIGHT & WEIGHT — conditional on form.unitSystem:
+  //    • "metric"   → two TextFields: Height (cm) + Weight (kg)
+  //    • "imperial" → three TextFields: Height (ft) + Height (in) + Weight (lbs)
+  //    Wrap each group in a <Grid container spacing={2}>.
+  //
+  // 4. ACTIVITY LEVEL — a TextField select, required.
+  //    Options (value → label):
+  //      sedentary          → "Sedentary — little or no exercise"
+  //      lightly_active     → "Lightly active — 1–3 days/week"
+  //      moderately_active  → "Moderately active — 3–5 days/week"
+  //      very_active        → "Very active — 6–7 days/week"
+  //      extra_active       → "Extra active — hard exercise + physical job"
+  //
+  // 5. MEDICAL CONDITIONS — multiline TextField (2 rows), not required
+  //
+  // 6. HEALTH GOALS — multiline TextField (2 rows), not required
+  //
+  // 7. SUBMIT BUTTON — MUI <Button type="submit" variant="contained" fullWidth>
+  //    • Show a <CircularProgress size={16} /> spinner as startIcon when isLoading
+  //    • Disable the button when isLoading
+  //    • Label: "Generating Report…" when loading, "Generate Health Report" otherwise
+  //
+  // All interactive fields should have:
+  //   disabled={isLoading}
+  //   value={form.<field>}
+  //   onChange={(e) => set('<field>', e.target.value)}
+  //
+  // Hints:
+  //   • Use <Grid size={{ xs: 12, sm: 4 }}> for three-column rows
+  //   • Use <Grid size={{ xs: 12, sm: 6 }}> for two-column rows
+  //   • For number inputs use slotProps={{ htmlInput: { min, max, step } }}
+  //   • For selects add slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}
+  //     so the placeholder label displays correctly
+  // ─────────────────────────────────────────────────────────────────────────
 
-      {/* Unit Toggle */}
-      <div>
-        <p className="text-sm font-medium text-gray-600 mb-1.5">Unit System</p>
-        <ToggleButtonGroup
-          value={form.unitSystem}
-          exclusive
-          onChange={(_, val) => val && switchUnits(val as UnitSystem)}
-          disabled={isLoading}
-          size="small"
-        >
-          <ToggleButton value="metric">Metric (cm / kg)</ToggleButton>
-          <ToggleButton value="imperial">Imperial (ft / lbs)</ToggleButton>
-        </ToggleButtonGroup>
-      </div>
-
-      {/* Height & Weight */}
-      {form.unitSystem === 'metric' ? (
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              label="Height (cm)"
-              required
-              type="number"
-              placeholder="e.g. 175"
-              slotProps={{ htmlInput: { min: 50, max: 250 } }}
-              value={form.heightCm}
-              onChange={(e) => set('heightCm', e.target.value)}
-              disabled={isLoading}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              label="Weight (kg)"
-              required
-              type="number"
-              placeholder="e.g. 70"
-              slotProps={{ htmlInput: { min: 10, max: 500, step: 0.1 } }}
-              value={form.weightKg}
-              onChange={(e) => set('weightKg', e.target.value)}
-              disabled={isLoading}
-            />
-          </Grid>
-        </Grid>
-      ) : (
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <TextField
-              label="Height (ft)"
-              required
-              type="number"
-              placeholder="e.g. 5"
-              slotProps={{ htmlInput: { min: 1, max: 8 } }}
-              value={form.heightFt}
-              onChange={(e) => set('heightFt', e.target.value)}
-              disabled={isLoading}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <TextField
-              label="Height (in)"
-              type="number"
-              placeholder="e.g. 9"
-              slotProps={{ htmlInput: { min: 0, max: 11 } }}
-              value={form.heightIn}
-              onChange={(e) => set('heightIn', e.target.value)}
-              disabled={isLoading}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
-            <TextField
-              label="Weight (lbs)"
-              required
-              type="number"
-              placeholder="e.g. 154"
-              slotProps={{ htmlInput: { min: 20, max: 1000, step: 0.1 } }}
-              value={form.weightLbs}
-              onChange={(e) => set('weightLbs', e.target.value)}
-              disabled={isLoading}
-            />
-          </Grid>
-        </Grid>
-      )}
-
-      {/* Activity Level */}
-      <TextField
-        select
-        label="Activity Level"
-        required
-        value={form.activityLevel}
-        onChange={(e) => set('activityLevel', e.target.value as HealthFormData['activityLevel'])}
-        disabled={isLoading}
-        slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}
-      >
-        <MenuItem value="">-- Select one --</MenuItem>
-        <MenuItem value="sedentary">Sedentary — little or no exercise</MenuItem>
-        <MenuItem value="lightly_active">Lightly active — 1–3 days/week</MenuItem>
-        <MenuItem value="moderately_active">Moderately active — 3–5 days/week</MenuItem>
-        <MenuItem value="very_active">Very active — 6–7 days/week</MenuItem>
-        <MenuItem value="extra_active">Extra active — hard exercise + physical job</MenuItem>
-      </TextField>
-
-      {/* Medical Conditions */}
-      <TextField
-        label="Medical Conditions / Medications"
-        placeholder="e.g. Type 2 diabetes, hypertension, metformin — or leave blank"
-        multiline
-        rows={2}
-        value={form.medicalConditions}
-        onChange={(e) => set('medicalConditions', e.target.value)}
-        disabled={isLoading}
-        slotProps={{ inputLabel: { shrink: true } }}
-      />
-
-      {/* Goals */}
-      <TextField
-        label="Health Goals"
-        placeholder="e.g. Lose 10 kg, build muscle, improve energy levels"
-        multiline
-        rows={2}
-        value={form.goals}
-        onChange={(e) => set('goals', e.target.value)}
-        disabled={isLoading}
-        slotProps={{ inputLabel: { shrink: true } }}
-      />
-
-      <Button
-        type="submit"
-        variant="contained"
-        size="large"
-        disabled={isLoading}
-        fullWidth
-        startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : undefined}
-      >
-        {isLoading ? 'Generating Report…' : 'Generate Health Report'}
-      </Button>
-    </form>
-  );
+  // TODO: replace this placeholder with your form JSX
+  return <p style={{ color: 'red' }}>HealthForm not yet implemented — complete Part A</p>;
 }

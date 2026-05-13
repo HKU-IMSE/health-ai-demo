@@ -1,17 +1,64 @@
-# Health AI Demo
+# Health AI — Teaching Template
 
-A React + Vite + TailwindCSS app that takes user health data, sends it to an AI model via [OpenRouter](https://openrouter.ai), and streams back a structured health analysis report.
+A guided lab project where students build a real AI-powered health analysis web app from a skeleton codebase.
 
-**Live demo:** https://dist-jet-psi-81.vercel.app
+**Reference (completed) app:** https://dist-jet-psi-81.vercel.app
 
-## Tech Stack
+---
 
-- **React 19** + **TypeScript** + **Vite**
-- **TailwindCSS v4** for styling
-- **Vercel AI SDK** (`ai`) + `@openrouter/ai-sdk-provider` for streaming AI responses
-- **Model**: `openai/gpt-4o-mini` via OpenRouter
+## What this app does
 
-## Getting Started
+Users fill in a health form (age, sex, height, weight, activity level, goals). When they submit, the app:
+
+1. Converts their measurements to metric if needed and calculates BMI.
+2. Builds a prompt and sends it to an AI model via [OpenRouter](https://openrouter.ai).
+3. Streams the AI's structured health report back to the screen in real time.
+
+The finished app looks like this:
+
+```
+┌─────────────────────────────────┐
+│  Health AI                      │
+├─────────────────────────────────┤
+│  [ Health Form — student fills  │
+│    in Parts A, B, C ]           │
+├─────────────────────────────────┤
+│  Health Analysis Report         │
+│  (streamed markdown from AI)    │
+└─────────────────────────────────┘
+```
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| UI framework | React 19 + TypeScript |
+| Build tool | Vite |
+| Styling | TailwindCSS v4 + MUI v6 components |
+| AI streaming | Vercel AI SDK (`ai`) |
+| AI gateway | OpenRouter (`@openrouter/ai-sdk-provider`) |
+| Default model | `openai/gpt-4o-mini` (via OpenRouter free tier) |
+
+---
+
+## Repository structure
+
+```
+src/
+  components/
+    HealthForm.tsx     ← Part A: students build the form UI
+    HealthReport.tsx   ← provided — renders the AI report
+  lib/
+    ai.ts              ← Parts B & C: unit conversion + AI prompt
+  types.ts             ← provided — TypeScript interfaces
+  App.tsx              ← provided — wires form → AI → report
+```
+
+---
+
+## Quick start
 
 ### 1. Install dependencies
 
@@ -21,52 +68,36 @@ npm install
 
 ### 2. Set your OpenRouter API key
 
-Copy `.env.example` to `.env.local` and fill in your key:
-
 ```bash
 cp .env.example .env.local
 ```
+
+Open `.env.local` and paste your key:
 
 ```env
 VITE_OPENROUTER_API_KEY=sk-or-...
 ```
 
-Get a free API key at [openrouter.ai/keys](https://openrouter.ai/keys).
+Get a free key at [openrouter.ai/keys](https://openrouter.ai/keys).
 
-> **Note:** This is a client-side-only app — the API key is baked into the JS bundle at build time and visible in the browser. Set a spending limit on your OpenRouter account to prevent unexpected charges.
+> **Note:** This is a client-side app — the API key is embedded in the JS bundle at build time and is visible in the browser. Set a spending limit on your OpenRouter account.
 
-### 3. Run locally
+### 3. Run the dev server
 
 ```bash
 npm run dev
 ```
 
-## Deploying to Vercel
+Open [http://localhost:5173](http://localhost:5173).
 
-The app is deployed as a **static site** by uploading the local `dist` folder directly to Vercel. Vercel never runs a build or pulls from GitHub — the API key is baked in locally before uploading.
+---
 
-### First-time setup
+## Student tasks
 
-```bash
-# Install Vercel CLI
-npm install -g vercel
+See **[LABSHEET.md](./LABSHEET.md)** for the full step-by-step guide.
 
-# Log in (opens browser)
-vercel login
-```
-
-### Deploy
-
-```bash
-npm run build && vercel deploy dist --prod
-```
-
-That's it. The `dist` folder is uploaded as-is with the API key already embedded.
-
-### Subsequent deployments
-
-Same command — just make sure `.env.local` has the correct API key before running:
-
-```bash
-npm run build && vercel deploy dist --prod
-```
+| Part | File | Task | Est. time |
+|---|---|---|---|
+| A | `src/components/HealthForm.tsx` | Build the form UI | 3–4 h |
+| B | `src/lib/ai.ts` — `toMetric()` | Unit conversion + BMI | 1.5–2 h |
+| C | `src/lib/ai.ts` — `SYSTEM_PROMPT` | Write the AI system prompt | 2–3 h |

@@ -2,45 +2,70 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { streamText } from 'ai';
 import type { HealthFormData, MetricValues } from '../types';
 
+// ─── Part B: Unit conversion ──────────────────────────────────────────────
+//
+// Complete the toMetric() function.
+//
+// It receives a HealthFormData object and must return a MetricValues object
+// { heightCm: number, weightKg: number }.
+//
+// Rules:
+//   • If data.unitSystem === 'metric', parse heightCm and weightKg directly.
+//   • If data.unitSystem === 'imperial':
+//       - Convert feet + inches to centimetres:  total_inches × 2.54
+//       - Convert pounds to kilograms:           lbs × 0.453592
+//       - Round both results to 1 decimal place.
+//   • All input fields are strings — use parseFloat() to convert.
+//     Guard against empty strings with:  (parseFloat(x) || 0)
+//
+// BMI is calculated later in streamHealthAnalysis as:
+//   weightKg / (heightCm / 100) ^ 2
+// so getting the conversion right matters!
+// ─────────────────────────────────────────────────────────────────────────
+
 export function toMetric(data: HealthFormData): MetricValues {
-  if (data.unitSystem === 'metric') {
-    return {
-      heightCm: parseFloat(data.heightCm) || 0,
-      weightKg: parseFloat(data.weightKg) || 0,
-    };
-  }
-  // Imperial to metric
-  const totalInches = (parseFloat(data.heightFt) || 0) * 12 + (parseFloat(data.heightIn) || 0);
-  return {
-    heightCm: Math.round(totalInches * 2.54 * 10) / 10,
-    weightKg: Math.round((parseFloat(data.weightLbs) || 0) * 0.453592 * 10) / 10,
-  };
+  // TODO: implement this function
+  return { heightCm: 0, weightKg: 0 };
 }
 
-const SYSTEM_PROMPT = `You are a health analysis assistant. When given a user's health data, respond with a structured health report in the following exact format. Use markdown with clear section headers. Be informative, supportive, and non-alarmist.
+// ─── Part C: AI system prompt ─────────────────────────────────────────────
+//
+// Write a system prompt that instructs the AI to produce a structured health
+// report in markdown.  The AI will receive a user message containing:
+//   - Name, Age, Sex
+//   - Height (cm), Weight (kg), pre-calculated BMI
+//   - Activity level, Medical conditions, Health goals
+//
+// Your prompt must make the AI output EXACTLY these sections (in order):
+//
+//   ## 1. Personal Profile
+//   ## 2. Body Metrics
+//   ## 3. Health Assessment
+//   ## 4. Recommendations
+//      ### Lifestyle
+//      ### Diet
+//      ### Exercise
+//
+// Section requirements:
+//   1. Personal Profile  — summarise the user's provided details
+//   2. Body Metrics      — height (cm + ft/in), weight (kg + lbs), BMI value,
+//                          BMI category (WHO ranges: <18.5 / 18.5–24.9 / 25–29.9 / ≥30),
+//                          ideal weight range for this height
+//   3. Health Assessment — 2–4 sentence overall status + notable risk/positive factors
+//   4. Recommendations   — 3–5 bullet points per sub-section, tailored to the user's
+//                          goals and activity level; end with a motivating statement
+//
+// Tone guidance:
+//   • Informative, supportive, and non-alarmist
+//   • No disclaimer about not being a doctor (unless asked)
+//   • Positive and practical
+// ─────────────────────────────────────────────────────────────────────────
 
-## 1. Personal Profile
-Summarize the user's provided details (name, age, sex, activity level, goals).
+const SYSTEM_PROMPT = `TODO: write your system prompt here`;
 
-## 2. Body Metrics
-- **Height**: [value in cm and ft/in]
-- **Weight**: [value in kg and lbs]
-- **BMI**: [calculated value, 1 decimal]
-- **BMI Category**: [Underweight / Normal weight / Overweight / Obese — use standard WHO ranges: <18.5, 18.5–24.9, 25–29.9, ≥30]
-- **Ideal Weight Range**: [healthy BMI range 18.5–24.9 for this height, in both kg and lbs]
-
-## 3. Health Assessment
-Provide a brief overall health status assessment (2–4 sentences). Then list any notable risk factors or positive health indicators based on the provided data.
-
-## 4. Recommendations
-Provide personalised, actionable recommendations in three sub-sections:
-### Lifestyle
-### Diet
-### Exercise
-
-Keep each sub-section to 3–5 bullet points. Tailor advice to the user's stated goals and activity level. End with a brief motivating closing statement.
-
-Important: Do not include any disclaimers about not being a doctor or professional unless specifically asked. Keep the tone positive and practical.`;
+// ─── Provided: AI streaming call ─────────────────────────────────────────
+// You do NOT need to modify anything below this line.
+// ─────────────────────────────────────────────────────────────────────────
 
 export async function streamHealthAnalysis(
   data: HealthFormData,
